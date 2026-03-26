@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Template</title>
+  <style>
+    /* Your original CSS unchanged */
+    body {
+      font-family: sans-serif;
+      font-size: larger;
+      font-weight: bold;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 1em;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    #speak {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+    main {
+      max-width: 600px;
+      background: white;
+      padding: 1.5em;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    button {
+      background: none;
+      border: 2px solid #0078d4;
+      color: #0078d4;
+      font-size: 20px;
+      margin: 5px;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #0078d4;
+      color: white;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    input[type="number"] {
+      font-size: 14px;
+      width: 60px;
+      margin-right: 10px;
+      text-align: center;
+    }
+
+    #keyWords {
+      text-align: center;
+      color: #0078d4;
+      font-size: 1.3em;
+      margin-bottom: 10px;
+    }
+
+    #english {
+      color: #444;
+    }
+
+    #q {
+      background: #0078d4;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+
+    .controls {
+      margin-top: 1em;
+      text-align: center;
+    }
+
+    details {
+      margin-top: 0.5em;
+    }
+
+    small {
+      color: #777;
+      font-weight: normal;
+    }
+
+    footer {
+      margin-top: auto;
+      text-align: center;
+      padding: 1em 0;
+      font-size: 0.9em;
+      color: #555;
+    }
+
+    footer span {
+      color: #0078d4;
+      font-weight: bold;
+    }
+
+    section.general.info,
+    section.activity {
+      width: 100%;
+      max-width: 600px;
+      box-sizing: border-box;
+    }
+
+    section.general.info details,
+    section.activity details {
+      display: block;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      background: white;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      margin: 0.5em 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9em;
+    }
+
+    th, td {
+      border: 1px solid #333;
+      padding: 8px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+    #arabic{
+      direction: rtl;
+      text-align: right;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 0.6em;
+      }
+      #q { font-size: 0.9em; }
+      button { font-size: 18px; padding: 4px 8px; }
+    }
+    #objectives{
+      color: red;
+    }
+    #questionBasedOnAudio{
+      color: blue;
+      text-align: left;
+    }
+    main {
+      overflow-y: auto;
+    }
+    #questionBasedOnAudio li,
+      #answer li {
+    margin-bottom: 0.8em;
+    }
+    #questionBasedOnAudio ol { padding-left: 1em; }
+    .tts-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      flex-wrap: wrap; /* keeps it mobile-friendly */
+    }
+  </style>
+</head>
+
+<body role="document">
+
+  <!-- Added role="main" -->
+  <main role="main" aria-label="Lesson player interface">
+
+    <p id="speaker" aria-label="Speaker name"></p>
+    <p id="q" aria-live="polite"></p>
+    <p id="keyWords" aria-label="Keywords"></p>
+
+    <details id="definition" aria-label="Definition section">
+      <summary aria-label="Show or hide definition">Definition</summary>
+      <p id="def"></p>
+    </details>
+
+    <details id="illustrations" style="display:none;" aria-label="Illustration section">
+      <summary aria-label="Show or hide illustration">Illustration</summary>
+      <img id="image" alt="Related illustration" width="200" height="200" style="display:none;">
+    </details>
+
+    <details id="englishDetails" aria-label="English explanation">
+      <summary aria-label="Show or hide English explanation">English:</summary>
+      <p id="english"></p>
+    </details>
+
+    <details id="arabicDetails" aria-label="Arabic explanation">
+      <summary aria-label="Show or hide Arabic explanation">Arabic:</summary>
+      <p id="arabic"></p>
+    </details>
+
+    <p id="refer_to_container"><strong>Refer to:</strong> <span id="refer_to"></span></p>
+    <p id="back_to_container"><strong>Back to:</strong> <span id="back_to"></span></p>
+
+    <!-- ARIA enhancement -->
+    <audio id="audio" controls aria-label="Audio player">
+      <source src="" type="audio/mp3" />
+      Your browser does not support the audio element.
+    </audio>
+
+    <hr>
+
+    <div class="controls" role="group" aria-label="Navigation controls">
+
+      <input 
+        type="number" 
+        id="audioIndex" 
+        min="1" 
+        placeholder="#" 
+        aria-label="Enter clip number"
+      />
+
+      <button id="search" aria-label="Search for audio by number">&#128269;</button>
+
+      <button id="prev" aria-label="Previous audio clip">&#9664;</button>
+      <button id="next" aria-label="Next audio clip">&#9654;</button>
+
+      <label aria-label="Autoplay next audio">
+        <input type="checkbox" id="autoPlay" unchecked aria-checked="false" />
+        Auto play next audio clip
+      </label>
+
+      <div id="questionBasedOnAudio"></div>
+    </div>
+
+    <details aria-label="Text-to-speech options">
+      <summary aria-label="Show or hide text-to-speech controls">TTS</summary>
+
+      <div class="tts-buttons" role="group" aria-label="TTS controls">
+        <button id="speak" aria-label="Text to speech: read all text">TTS-All text</button>
+        <button id="stop" aria-label="Stop text to speech">Stop TTS</button>
+        <button id="speakSelection" aria-label="Text to speech: read selected text">TTS-Selected</button>
+      </div>
+    </details>
+     
+    <div>
+      <details id="answerDetails" aria-label="Answer section">
+        <summary aria-label="Show or hide answer">Answer</summary>
+        <div id="answer"></div>
+      </details>
+    </div>
+
+    <hr>
+
+    <small aria-label="Tip: Use arrow keys">💡 Tip: Use ← / → to navigate.</small>
+  </main>
+
+  <footer role="contentinfo">
+    <p>Created by <span>Eltayeb Mohamed</span> | <span>© 2025 Eltayeb Mohamed</span>. All rights reserved.</p>
+  </footer>
+
+  <!-- JS Unchanged except ARIA support integrated where appropriate -->
+  <script>
+    const utterance = new SpeechSynthesisUtterance();
+    let currentAudioIndex = 0;
+
+    const Sentences = [
+      /* your entire array unchanged */
+
+      //1
+            {
+        speaker: `Sylvia:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Hi. `,
+        arabic: `هاي`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `hi.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //2
+      {
+        speaker: `Sylvia:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Welcome to Health Watch.`,
+        arabic: `مرحبا بكم في رصد الصحة.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Welcome to Health Watch.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //3
+      {
+        speaker: `Sylvia:`,
+        keyWord: ``,
+        definition: ``,
+        english: `show number 42`,
+        arabic: `حلقة البرنامج رقم 42`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `show number 42.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //4
+      {
+        speaker: `Sylvia:`,
+        keyWord: ``,
+        definition: ``,
+        english: `This is the weekly podcast to teach you about health.`,
+        arabic: `هذه هي البودكاست الأسبوعية لتدرّسك حول الصحة.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `This is the weekly podcast to teach you about health.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //5
+      {
+        speaker: `Sylvia:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I’m your host, Sylvia Wong.`,
+        arabic: `أنا مضيفكم، سيلفيا ونغ.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I’m your host, Sylvia Wong.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //6
+      {
+        speaker: `Sylvia:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I’m here today with Dr. Michael Smith.`,
+        arabic: `أنا هنا اليوم مع الدكتور مايكل سميث.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I’m here today with Dr. Michael Smith.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //7
+      {
+        speaker: `Sylvia:`,
+        keyWord: ``,
+        definition: ``,
+        english: `He’s here to talk to us about stress.`,
+        arabic: `هو هنا ل يتحدث لنا عن التوتر.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `He’s here to talk to us about stress.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //8
+      {
+        speaker: `Sylvia:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Dr. Smith, why is stress a big problem these days?`,
+        arabic: `الدكتور سميث، لماذا التوتر مشكلة كبيرة في هذه الأيام؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Dr. Smith, why is stress a big problem these days.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //9
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Well, Sylvia. `,
+        arabic: `حسنا، سيلفيا. `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Well, Sylvia.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //10
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `it’s a very big problem for several reasons.`,
+        arabic: `إنها مشكلة كبيرة لعدة أسباب.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `it’s a very big problem for several reasons.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //11
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `First,`,
+        arabic: `أولاً`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `first.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //12
+       {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `everyone is very busy. `,
+        arabic: `الجميع مشغولون جداً. `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `everyone is very busy.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //13
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `For example,`,
+        arabic: `على سبيل المثال,`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `For example.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //14
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `a lot of people work full-time and have children.`,
+        arabic: `العديد من الناس يعملون بدوام كامل و لديهم أطفال.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `a lot of people work full-time and have children.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `a lot of people work full-time`,
+        arabic: `العديد من الناس يعملون بدوام كامل`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `a lot of people work full-time.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //15
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `and have children.`,
+        arabic: `و لديهم أطفال.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `and have children.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //16
+      
+      //17
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `They don’t have time to relax.`,
+        arabic: `ليس لديهم وقت للاسترخاء.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `They don’t have time to relax.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //18
+      {
+        speaker: `Sylvia:`,
+        keyWord: ``,
+        definition: ``,
+        english: `That’s true.`,
+        arabic: `هذا صحيح.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `That’s true.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //19
+      {
+        speaker: `Sylvia:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I’m very busy.  `,
+        arabic: `أنا مشغولة جداً. `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I’m very busy.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //20
+      {
+        speaker: `Sylvia:`,
+        keyWord: ``,
+        definition: ``,
+        english: `What’s another reason?`,
+        arabic: `ما هو سبب آخر؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `What’s another reason.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //21
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Another cause of stress is money.`,
+        arabic: `سبب آخر للتوتر هو المال.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Another cause of stress is money.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //22
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Money problems are often very stressful.`,
+        arabic: `مشاكل المال هي غالباً مثيرة للتوتر.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Money problems are often very stressful.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //23
+       {
+        speaker: `Sylvia:`,
+        keyWord: ``,
+        definition: ``,
+        english: `How about students?`,
+        arabic: `ماذا عن الطلاب؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `How about students.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //24
+      {
+        speaker: `Sylvia:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Do they have a lot of stress?`,
+        arabic: `هل لديهم الكثير من التوتر؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Do they have a lot of stress.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //25
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Oh, many students have serious  problems with stress.`,
+        arabic: `أوه، كثير من الطلاب لديهم مشاكل جدية مع التوتر.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Oh, many students have serious  problems with stress.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //26
+       {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Sometimes `,
+        arabic: `أحيانًا`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `sometimes.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //35 chunk
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `they take classes and they work, so they’re very busy.  `,
+        arabic: `أحياناً يأخذون دورات ويقومون بالعمل، لذا هم مشغولون جداً.  `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `they take classes and they work, so they’re very busy.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+       {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `they take classes.  `,
+        arabic: ` يأخذون دروسا .  `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `they take classes.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+       {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `and they work.  `,
+        arabic: `وهم يعملون .  `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `and they work.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      // end chunk
+     
+      //27
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `so`,
+        arabic: `لذا .`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `so.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `so they’re very busy.`,
+        arabic: `لذا هم مشغولون جداً.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `so they’re very busy.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //28 chunk
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `They also feel stress because they worry about their grades.`,
+        arabic: `يشعرون بالتوتر أيضاً لأنهم يقلقون بشأن درجاتهم.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `They also feel stress because they worry about their grades.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `They also feel stress because`,
+        arabic: `يشعرون بالتوتر أيضاً لأنهم يقلقون بشأن درجاتهم.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `They also feel stress because.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `they worry about their grades.`,
+        arabic: `يشعرون بالتوتر أيضاً لأنهم يقلقون بشأن درجاتهم.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `they worry about their grades.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //29 end chunk
+      {
+        speaker: `Sylvia:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Right. `,
+        arabic: `صحيح. `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Right.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //30
+      {
+        speaker: `Sylvia:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Grades can be very stressful.`,
+        arabic: `الدرجات قد تكون مثيرة للتوتر.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Grades can be very stressful.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //31
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Yes.`,
+        arabic: `نعم.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `yes.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //32
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `And new students sometimes feel lonely because they don’t have friends.`,
+        arabic: `والطلاب الجدد يشعرون أحيانًا بالوحدة لأنهم ليس لديهم أصدقاء.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `and new students sometimes feel lonely because they don’t have friends.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //33
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `and new students`,
+        arabic: `والطلاب الجدد .`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `and new students.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //34
+      
+      //36
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `sometimes feel lonely because`,
+        arabic: ` أحيانًا يشعرون بالوحدة لأنهم .`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `sometimes feel lonely because.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `they don’t have friends.`,
+        arabic: ` ليس لديهم أصدقاء.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `they don’t have friends.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `This can also cause stress.`,
+        arabic: `وهذا يمكن أن يسبب التوتر.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `This can also cause stress.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //37
+      {
+        speaker: `Sylvia:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I see.`,
+        arabic: `أفهم.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I see.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //38
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `And what are the symptoms of stress?`,
+        arabic: `وما هي أعراض التوتر؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `And what are the symptoms  of stress.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //39
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Well.`,
+        arabic: `حسنًا.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `well.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //40
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `stress can make people feel really tired.`,
+        arabic: `يمكن أن يسبب التوتر الشعور بالتعب الشديد.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `stress can make people feel really tired.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //41
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `They become run-down, and they get sick often.`,
+        arabic: `يصبحون متعبين، ويصابون بالمرض كثيرًا.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `They become run-down, and they get sick often.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `They become run-down.`,
+        arabic: `هم يصبحون مرهقين `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `They become run down.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //42
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `and they get sick often.`,
+        arabic: `ويصابون بالمرض كثيرًا.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `and they get sick often.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      
+      //43
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Stress can even make people gain weight.`,
+        arabic: `يمكن أن يسبب التوتر زيادة الوزن.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Stress can even make people gain weight.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //44
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `So, Dr. Smith, we all have some stress`,
+        arabic: `إذن، دكتور سميث، كلنا لدينا بعض التوتر`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `So, Dr. Smith, we all have some stress.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //45
+       {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `How can we manage our stress? `,
+        arabic: `كيف يمكننا إدارة التوتر؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `How can we manage our stress.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //46
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Well, uh, there are several ways to reduce stress.`,
+        arabic: `حسنًا، هناك عدة طرق لتقليل التوتر.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Well, uh, there are several ways to reduce stress.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //47
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `First, you should exercise.`,
+        arabic: `أولاً، يجب أن تمارس الرياضة.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `First, you should exercise.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //48
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `After work, you should go for a walk in a park or around the neighborhood.`,
+        arabic: `بعد العمل، يجب أن تذهب للنزهة في الحديقة أو حول الحي.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `After work, you should go for a walk in a park or around the neighborhood.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //49
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `After work`,
+        arabic: `بعد العمل`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `After work.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //50
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `you should go for a walk in a park or around the neighborhood.`,
+        arabic: `يستحسن أن تذهب للتنزه في حديقة أو حول الحي`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `you should go for a walk in a park or around the neighborhood.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //51
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Diet is also extremely  important.`,
+        arabic: `النظام الغذائي مهم جداً`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Diet is also extremely  important.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //52
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `People should eat a lot of fruit and vegetables.`,
+        arabic: `يجب أن يأكل الناس الكثير من الفواكه والخضروات`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `People should eat a lot of fruit and vegetables.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //53
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `OK, so exercise and diet are important.`,
+        arabic: `حسنًا، إذًا ممارسة الرياضة والنظام الغذائي هما مهمان.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `OK, so exercise and diet are important.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //54
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `What are some other ways to reduce stress?`,
+        arabic: `ما هي بعض الطرق الأخرى لتقليل التوتر؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `What are some other ways to reduce stress.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //55
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Well, people should have social  time with friends.`,
+        arabic: `حسنًا، يجب أن يكون لدى الناس وقت اجتماعي مع الأصدقاء.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Well, people should have social  time with friends.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //56
+       {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Laughter is a great way to reduce stress. `,
+        arabic: `الضحك هو طريقة رائعة لتقليل التوتر`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Laughter is a great way to reduce stress.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //57
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `You’re right.`,
+        arabic: `أنت محق.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `You’re right.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //58
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I always feel better after a fun day with my friends.`,
+        arabic: `أشعر دائماً بأفضل حال بعد يوم ممتع مع أصدقائي.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I always feel better after a fun day with my friends.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //59
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Well, Dr. Smith, thank you for the excellent advice.`,
+        arabic: `حسنًا، شكراً لك، دكتور سميث، على النصيحة الرائعة.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Well, Dr. Smith, thank you for the excellent advice.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //60
+      {
+        speaker: `Dr. Smith:`,
+        keyWord: ``,
+        definition: ``,
+        english: `You’re welcome.`,
+        arabic: `على الرحب والسعة.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `You’re welcome.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      
+    ];
+
+    const speakSelectionBtn = document.getElementById("speakSelection");
+    const speakBtn = document.getElementById("speak");
+    const stopBtn = document.getElementById("stop");
+
+    const q = document.getElementById("q");
+    const refer_to = document.getElementById("refer_to");
+    const back_to = document.getElementById("back_to");
+    const speaker = document.getElementById("speaker");
+    const keyWords = document.getElementById("keyWords");
+    const def = document.getElementById("def");
+    const english = document.getElementById("english");
+    const arabic = document.getElementById("arabic");
+    const audio = document.getElementById("audio");
+    const image = document.getElementById("image");
+    const illustrationDetails = document.getElementById("illustrations");
+    const questionBasedOnAudio = document.getElementById("questionBasedOnAudio");
+    const audioIndexInput = document.getElementById("audioIndex");
+    const autoPlayCheckbox = document.getElementById("autoPlay");
+
+    const definitionDetails = document.getElementById("definition");
+    const englishDetails = document.getElementById("englishDetails");
+    const arabicDetails = document.getElementById("arabicDetails");
+    const answer = document.getElementById("answer");
+    const answerDetails = document.getElementById("answerDetails");
+    const prevBtn = document.getElementById("prev");
+    const nextBtn = document.getElementById("next");
+
+    speakBtn.addEventListener("click", () => {
+        const s = Sentences[currentAudioIndex];
+        if (s.english?.trim()) {
+            const cleanedText = s.english.replace(/<br\s*\/?>/gi, ' '); 
+            utterance.text = cleanedText;  
+            speechSynthesis.cancel();      
+            speechSynthesis.speak(utterance);
+        }
+    });
+
+    speakSelectionBtn.addEventListener("click", () => {
+      const selectedText = window.getSelection().toString().trim();
+      if (!selectedText) return;
+      utterance.text = selectedText;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utterance);
+    });
+
+    stopBtn.addEventListener("click", () => {
+      speechSynthesis.cancel();
+    });
+
+    function updateButtonState() {
+      prevBtn.disabled = currentAudioIndex === 0;
+      nextBtn.disabled = currentAudioIndex === Sentences.length - 1;
+    }
+
+    function displayData() {
+      const s = Sentences[currentAudioIndex];
+
+      q.textContent = `${currentAudioIndex + 1}/${Sentences.length}`;
+
+      refer_to.textContent = s.refer_to || "";
+      back_to.textContent = s.back_to || "";
+
+      const referToContainer = document.getElementById("refer_to_container");
+      const backToContainer = document.getElementById("back_to_container");
+
+      referToContainer.style.display = s.refer_to?.trim() ? "block" : "none";
+      backToContainer.style.display = s.back_to?.trim() ? "block" : "none";
+
+      keyWords.innerHTML = s.keyWord || "";
+      speaker.innerHTML = s.speaker || "";
+      def.innerHTML = s.definition || "";
+      english.innerHTML = s.english || "";
+      arabic.innerHTML = s.arabic || "";
+      audio.src = s.audio || "";
+      answer.innerHTML = s.answer || "";
+
+      questionBasedOnAudio.innerHTML = s.audioQuestion?.trim()
+        ? `<details aria-label="Audio question"><summary>Question</summary>${s.audioQuestion}</details>`
+        : "";
+
+      answerDetails.style.display = s.answer?.trim() ? "block" : "none";
+      definitionDetails.style.display = s.definition?.trim() ? "block" : "none";
+      englishDetails.style.display = s.english?.trim() ? "block" : "none";
+      arabicDetails.style.display = s.arabic?.trim() ? "block" : "none";
+
+      if (s.Image && s.Image.trim() !== "" && s.Image !== ".jpg") {
+        image.src = s.Image;
+        image.style.display = "block";
+        illustrationDetails.style.display = "block";
+      } else {
+        image.removeAttribute("src");
+        image.style.display = "none";
+        illustrationDetails.style.display = "none";
+      }
+
+      updateButtonState();
+    }
+
+    function resetDetails() {
+      definitionDetails.open = false;
+      englishDetails.open = true;
+      arabicDetails.open = true;
+      answerDetails.open = false;
+    }
+
+    function nextSentence() {
+      if (currentAudioIndex < Sentences.length - 1) {
+        currentAudioIndex++;
+        displayData();
+        resetDetails();
+        if (autoPlayCheckbox.checked) audio.play().catch(() => {});
+      }
+    }
+
+    function prevSentence() {
+      if (currentAudioIndex > 0) {
+        currentAudioIndex--;
+        displayData();
+        resetDetails();
+        if (autoPlayCheckbox.checked) audio.play().catch(() => {});
+      }
+    }
+
+    nextBtn.addEventListener("click", nextSentence);
+    prevBtn.addEventListener("click", prevSentence);
+
+    document.getElementById("search").addEventListener("click", () => {
+      const index = parseInt(audioIndexInput.value, 10) - 1;
+      if (index >= 0 && index < Sentences.length) {
+        currentAudioIndex = index;
+        displayData();
+      } else {
+        alert(`Enter a number between 1 and ${Sentences.length}`);
+      }
+    });
+
+    audioIndexInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") document.getElementById("search").click();
+    });
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "ArrowRight") nextSentence();
+      if (e.key === "ArrowLeft") prevSentence();
+    });
+
+    displayData();
+  </script>
+</body>
+</html>
